@@ -1,0 +1,21 @@
+{
+    "name": "kostomakha/smart-routing",
+    "description": "easy and cool routing",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Kostyantyn Kedrya",
+            "email": "kedryakv@gmail.com"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Routing\\": "src/"
+        }
+    }
+}
