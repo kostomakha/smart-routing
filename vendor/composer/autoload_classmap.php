@@ -6,13 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Itcourses\\Controller\\Main' => $baseDir . '/application/Controller/Main.php',
-    'Itcourses\\Core\\App' => $baseDir . '/application/Core/App.php',
-    'Itcourses\\Core\\Controller' => $baseDir . '/application/Controller/Controller.php',
-    'Itcourses\\Core\\Render' => $baseDir . '/application/Core/Render.php',
-    'Itcourses\\Core\\Route' => $baseDir . '/application/Core/Route.php',
-    'Itcourses\\Core\\Router' => $baseDir . '/application/Core/Router.php',
-    'Itcourses\\Model\\Model' => $baseDir . '/application/Model/Model.php',
-    'Itcourses\\Request' => $baseDir . '/application/Core/Request.php',
-    'Itcourses\\autoClassLoader' => $baseDir . '/application/autoloader.php',
+    'SmartRouting\\Route' => $baseDir . '/src/Route.php',
+    'SmartRouting\\Router' => $baseDir . '/src/Router.php',
 );

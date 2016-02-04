@@ -6,7 +6,7 @@
  * Time: 11:46 AM
  */
 
-namespace Itcourses\Core\Router\Helpers;
+namespace SmartRouting\Routing\Helpers;
 
 
 trait TraitRoute

@@ -1,7 +1,7 @@
 <?php
 
-namespace Itcourses\Core\Router;
-use Itcourses\Core\Router\Helpers\TraitRoute;
+namespace SmartRouting\Routing;
+use SmartRouting\Routing\Helpers\TraitRoute;
 
 /**
  * Class Route

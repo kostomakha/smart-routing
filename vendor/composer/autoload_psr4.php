@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Itcourses\\' => array($baseDir . '/application'),
+    'SmartRouting\\' => array($baseDir . '/src'),
 );

@@ -6,9 +6,8 @@
  * Time: 11:26 AM
  */
 
-namespace Itcourses\Core\Router;
-use Itcourses\Core\Request;
-use Itcourses\Core\Router\Helpers\TraitRouter;
+namespace SmartRouting\Routing;
+use SmartRouting\Routing\Helpers\TraitRouter;
 abstract class AbstractRouter
 {
     use TraitRouter;
