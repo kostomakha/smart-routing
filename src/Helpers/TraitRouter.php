@@ -2,43 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: roach
- * Date: 1/27/16
+ * Date: 2/2/16
  * Time: 11:26 AM
  */
 
-namespace Routing;
+namespace Itcourses\Core\Router\Helpers;
 
-class Router
+
+trait TraitRouter
 {
-    protected $request;
-    protected $method;
-    protected $uri;
-    protected $routes;
-
-    protected $controller;
-
-    protected $action;
-
-    protected $params = [];
-
-
-
-    /**
-     * Router constructor.
-     * @param $request
-     */
-
-    public function __construct($request)
-    {
-        $this->request = $request;
-
-        $this->uri = $this->request->getUri();
-        var_dump($this->uri);
-
-        $this->method = $this->request->getMethod();
-        var_dump($this->method);
-    }
-
     /**
      * @param $route
      */
@@ -47,11 +19,13 @@ class Router
         $this->routes = $route;
 
         $route = $this->routes->finedRoute($this->uri, $this->method);
-        var_dump($route);
+        //var_dump($route);
         if (!empty($route)) {
             $this->controller = array_shift($route);
             if(!empty($route)) {
                 $this->action = array_shift($route);
+            } else {
+                $this->action = 'index';
             }
             if(!empty($route)) {
                 $this->params = $route ? array_values($route) : [];
