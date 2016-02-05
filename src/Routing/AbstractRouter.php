@@ -8,6 +8,7 @@
 
 namespace SmartRouting\Routing;
 use SmartRouting\Routing\Helpers\TraitRouter;
+use HttpExchange\Request\Request;
 abstract class AbstractRouter
 {
     use TraitRouter;
@@ -29,10 +30,10 @@ abstract class AbstractRouter
     {
         $this->request = $request;
 
-        $this->uri = $this->request->getUri();
-        var_dump($this->uri);
+        $this->uri = $this->request->getUri()->getPath();
+        //var_dump($this->uri);
 
         $this->method = $this->request->getMethod();
-        var_dump($this->method);
+        //var_dump($this->method);
     }
 }

@@ -20,21 +20,27 @@ trait TraitRouter
 
         $route = $this->routes->finedRoute($this->uri, $this->method);
         //var_dump($route);
-        if (!empty($route)) {
-            $this->controller = array_shift($route);
-            if(!empty($route)) {
-                $this->action = array_shift($route);
+
+            if ($route != 0 && is_array($route)) {
+                $this->controller = $this->formatResult(array_shift($route)) . 'Controller';
+                if ($route != 0) {
+                    $this->action = 'action' . $this->formatResult(array_shift($route));
+                    if ($route != 0 ) {
+                        foreach ($route as $k => $v) {
+                            $this->params[$k] = $v;
+                        }
+                    }else {
+                        $this->params = [];
+                    }
+                } else {
+                    $this->action = 'actionIndex';
+                }
             } else {
-                $this->action = 'index';
-            }
-            if(!empty($route)) {
-                $this->params = $route ? array_values($route) : [];
+                $this->controller = 'DefaultController';
+                $this->action = 'actionIndex';
+
             }
 
-        } else {
-            $this->controller = 'Main';
-            $this->action = 'index';
-        }
     }
 
     /**
@@ -56,5 +62,9 @@ trait TraitRouter
     public function  getParams()
     {
         return $this->params;
+    }
+
+    private function formatResult($data) {
+        return $formated = ucfirst(strtolower($data));
     }
 }

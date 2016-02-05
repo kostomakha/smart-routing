@@ -14,42 +14,55 @@ abstract class AbstractRoute
      * Array with predefined methods
      * @var array
      */
+    protected $params = [];
+
     protected $routes = array(
         'GET' => array(),
         'POST' => array(),
         'PUT' => array(),
         'DELETE' => array(),
-        'PATCH' => array(),
-        'HEAD' => array(),
+        'PATCH' => array()
     );
     /**
      * Array with patterns for preg_match
      * @var array
      */
-    protected $patterns = array(
-        'num' => '[0-9]+',
-        'string' => '[a-zA-Z0-9\.\-_%]+'
+    protected $filter = array(
+        'number' => '[0-9]+',
+        'string' => '[a-zA-Z]+',
+        'any' => '[a-zA-Z0-9\-_]+'
+    );
+
+    protected $pattern = array(
+//        'num' => 'number',
+//        'string' => 'string',
+//        'any' => 'any',
+        'id' => 'number',
+        'name' => 'string',
+        'age' => 'any',
+        'article' => 'any',
+        'category' => 'any',
+        'course' => 'any'
     );
 
 
     public function __construct()
     {
         $this->add('default','/','Main:index', 'GET');
+        $this->readRoutes();
+        //var_dump($this->routes);
     }
 
     /**
      * read routes from file
      */
 
-    public function readRoutes()
-    {
-        $this->routes = include ROOT . '/Core/routes.php';
 
-    }
+    //abstract public function readRoutes();
 
-    public function saveRoutes()
-    {
-        file_put_contents ( ROOT . '/Core/routes.php', '<?php return '.var_export( $this->routes, true ).";\n");
-    }
+    /**
+     * @return mixed
+     */
+    //abstract public function saveRoutes();
 
 }
