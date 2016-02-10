@@ -118,6 +118,7 @@ class Route extends AbstractRoute
                 return $this->parseController($this->route('error'));
             }
         }
+        return true;
     }
 
     public function buildRoute($name, array $params = array(), $absolute = false)

@@ -58,7 +58,7 @@ class RouterTestTest extends PHPUnit_Framework_TestCase
 
     public function testGetRoute($path, $methodR, $name, $pattern, $controller, $method, $expectedController, $expectedAction)
     {
-        $route = new Route();
+        $route = new \SmartRouting\Route();
 
         $route->add($name, $pattern, $controller, $method);
 
@@ -82,7 +82,7 @@ class RouterTestTest extends PHPUnit_Framework_TestCase
             ->method('getPath')
             ->will($this->returnValue($path));
 
-        $router = new Router($request);
+        $router = new \SmartRouting\Router($request);
 
 
         $router->getRoute($route);
