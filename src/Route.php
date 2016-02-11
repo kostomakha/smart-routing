@@ -95,6 +95,17 @@ class Route extends AbstractRoute
                     return $this->parseController(end($route));
                 }
             }
+//            elseif(strpbrk($pattern, '?')) {
+//                foreach ($patternArray as $k => $v) {
+//                    if (!strpbk($v, '(')) {
+//
+//                    }else (strpbrk($v, '?:(')) {
+//                        $v = $this->replaceForFilter($v);
+//                    } elseif {
+//
+//                    }
+//                }
+//            }
         }
     }
 
@@ -131,6 +142,18 @@ class Route extends AbstractRoute
                 }
             }
             $this->buildUrl($tempUrl, $absolute);
+        }
+    }
+
+    protected function parseController($data)
+    {
+        if (strpos($data, ':')) {
+            $controllerArray = explode(':', $data);
+            $controllerArray = $controllerArray + $this->params;
+            return $controllerArray;
+        }else {
+            $controllerArray[0] = $data;
+            return $controllerArray;
         }
     }
 

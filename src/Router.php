@@ -28,10 +28,8 @@ class Router extends AbstractRouter
         $this->request = $request;
 
         $this->uri = $this->request->getUri()->getPath();
-        var_dump($this->uri);
 
         $this->method = strtoupper($this->request->getMethod());
-        //var_dump($this->method);
     }
 
     public function getRoute($route)

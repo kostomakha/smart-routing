@@ -18,13 +18,66 @@ class RouterTestTest extends PHPUnit_Framework_TestCase
             'zeros' => array(0, 0, 0, 0, 0, 0, 'ErrorController', 'ActionError'),
             'numbers' => array(1, 1, 1, 1, 1, 1, 'ErrorController', 'ActionError'),
             'default' => array('/', 'get', 'default', '/', 'default:index', 'GET', 'DefaultController', 'actionIndex'),
-            'contacts' => array('/contacts', 'get', 'contacts', '/contacts', 'contacts:showcontacts', 'GET', 'ContactsController', 'actionShowcontacts'),
-            'content1' => array('/category/php/loops-switches', 'get', 'content1', '/category/php/loops-switches', 'content', 'GET', 'ContentController', 'actionIndex'),
-            'category1' => array('/category/java/oop', 'get', 'category1', '/category/(category)/(course)', 'category:course', 'GET', 'CategoryController', 'actionCourse'),
-            'profile' => array('/user/123/Jhon/1', 'get', 'profile', '/user/(id:num)/(name:string)/(sex:num)', 'user:getuser', 'GET', 'UserController', 'actionGetuser'),
-            'profile2' => array('/user/123/Jhon', 'get', 'profile2', '/user/(id:num)/(name:string)/(sex:num)', 'user:getuser', 'GET', 'UserController', 'actionGetuser')
+            'contacts' => array(
+                '/contacts',
+                'get',
+                'contacts',
+                '/contacts',
+                'contacts:showcontacts',
+                'GET',
+                'ContactsController',
+                'actionShowcontacts'
+            ),
+            'content1' => array(
+                '/category/php/loops-switches',
+                'get',
+                'content1',
+                '/category/php/loops-switches',
+                'content',
+                'GET',
+                'ContentController',
+                'actionIndex'
+            ),
+            'category1' => array(
+                '/category/java/oop',
+                'get',
+                'category1',
+                '/category/(category)/(course)',
+                'category:course',
+                'GET',
+                'CategoryController',
+                'actionCourse'
+            ),
+            'profile' => array(
+                '/user/123/Jhon/1',
+                'get',
+                'profile',
+                '/user/(id:num)/(name:string)/(sex:num)',
+                'user:getuser',
+                'GET',
+                'UserController',
+                'actionGetuser'
+            ),
+            'profile2' => array(
+                '/user2/123/Jhon',
+                'get',
+                'profile2',
+                '/user2/(id:num)/(name:string?)/(sex:num?)',
+                'user:getuser',
+                'GET',
+                'UserController',
+                'actionGetuser'
+            )
         );
     }
+
+//        /user2/123/Jhon
+//
+//        user2/[0-9]+/[a-zA-Z]+(/[a-zA-Z]+)?
+//    (id:num) [0-9]+
+//        (name:string?) [\*]+
+//        (sex:num?)
+//    }
 
 //    public function providerRouteAdd()
 //    {

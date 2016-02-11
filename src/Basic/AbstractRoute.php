@@ -9,7 +9,7 @@ abstract class AbstractRoute
     protected $filter = array(
         'num' => '[0-9]+',
         'string' => '[a-zA-Z]+',
-        'any' => "[a-zA-Z0-9\-_]+"
+        'any' => '[a-zA-Z0-9\-_]+'
     );
 
     protected $routes = array(
@@ -28,22 +28,6 @@ abstract class AbstractRoute
 
     abstract public function findRoute($path, $method);
 
-
-    /**
-     * @param $data
-     * @return array
-     */
-    protected function parseController($data)
-    {
-        if (strpos($data, ':')) {
-            $controllerArray = explode(':', $data);
-            $controllerArray = $controllerArray + $this->params;
-            return $controllerArray;
-        }else {
-            $controllerArray[0] = $data;
-            return $controllerArray;
-        }
-    }
 
     public function deleteRoute($name)
     {
@@ -64,8 +48,6 @@ abstract class AbstractRoute
         }
     }
 
-
-
     protected function buildPath($data) {
         if (is_array($data)){
             $path = '/' . implode('/', $data);
@@ -84,6 +66,7 @@ abstract class AbstractRoute
             $path = $this->base . $data;
             return $path;
         }
+        return $path = $this->base . $data;
     }
 
     public function getParams()
