@@ -32,16 +32,20 @@ class Route extends AbstractRoute
     }
 
     /**
-     * read routes from file
+     * @param $name
+     * @param $pattern
+     * @param $controller
+     * @param array $params
+     * @param string $method
+     * @return bool
      */
-    public function add($name, $pattern, $controller, $method = 'GET')
+    public function add($name, $pattern, $controller, $params = array(), $method = 'GET')
     {
 
         $method = strtoupper($method);
 
         if (array_key_exists($name, $this->routes[$method])){
             $this->deleteRoute($name);
-
         }
 
         $this->routes[$method][$name] = array(
@@ -49,76 +53,69 @@ class Route extends AbstractRoute
             'controller' => $controller
         );
 
-        $this->saveRoutes();
+        //$this->saveRoutes();
         return true;
     }
 
-    public function findRoute($uri, $method)
+    public function findRoute($path, $method)
     {
+        var_dump($path);
         $routes = $this->routes[$method];
-        // var_dump($routes);
-        $query = explode('/', trim($uri, '/'));
+        var_dump($routes);
+        $queryArray = explode('/', trim($path, '/'));
 
-        foreach ($routes as $name => $route){
-            var_dump($route);
-            if(in_array($uri, $route)) {
+        foreach ($routes as $name => $route) {
+            echo 'Route';
+
+            if (in_array($path, $route)) {
+
                 return $this->parseController(end($route));
             }
+            $pattern = $route['pattern'];
 
-            if(strpos($route['pattern'], '(')) {
-                $patternArray = explode('/', trim($route['pattern'], '/'));
+            $patternArray = explode('/', trim($pattern, '/'));
 
-                foreach ($patternArray as $key => $value) {
-                    $patternArrayTrimed[$key] = trim($value, '()');
-                }
+            if(!strpbrk($pattern, '?') && strpbrk($pattern, '(')) {
 
-                var_dump($patternArrayTrimed);
+                $patternArrayFiltered = array_map(array($this, 'replaceForFilter'), $patternArray);
 
-                $patternArrayFliped = array_flip($patternArrayTrimed);
+                $patternMatcher = '/' . implode('/', $patternArrayFiltered);
 
-                //      echo "patternArrayFliped";
-                //       var_dump($patternArrayFliped);
-                unset($patternArrayTrimed);
-                //        echo "patternArrayTrimed";
-                //       var_dump($patternArrayTrimed);
+                preg_match('\'' . $patternMatcher . '\'', $path, $matched);
 
-                foreach ($patternArrayFliped as $k => $value) {
-                    //        echo "This is key if $k </br>";
-                    if (!array_key_exists($k, $this->pattern)) {
-                        $patternArrayFliped[$k] = $k;
-                    } else {
-                        $patternArrayFliped[$k] = $this->filter[$this->pattern[$k]];
-                        //                          echo "This is key $k";
-                    }
-
-                }
-                //       echo "patternArrayFliped new </br>";
-                //       var_dump($patternArrayFliped);
-                $matchPattern = '/' . implode('/', $patternArrayFliped);
-                //      echo "This is $matchPattern</br>";
-
-                preg_match('\'' . $matchPattern . '\'', $uri, $matched);
-                //        var_dump($matched);
                 if ($matched) {
-                    foreach ($patternArray as $k => $v){
-                        //  echo "Params key $k , value $v";
-                        if (strrpos($v, ')')){
-                            //$tempKey = array_search($v, $patternArray);
-                            $v = trim($v, '()');
-                            //  echo "query  key $k , value $v";
-                            $this->params[$v] = $query[$k];
 
-                            //return $this->parseController(end($route));
+                    $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
+
+                    foreach ($patternArray as $k => $v){
+                        if (strpbrk($v, '(')){
+                            $this->params[$paramsNameArray[$k]] = $queryArray[$k];
                         }
-                        //$this->params = [];
-                        //               var_dump($this->params);
                     }
                     return $this->parseController(end($route));
                 }
-                return $this->parseController($this->route('error'));
             }
         }
-        return true;
+    }
+
+    private function replaceForFilter($a){
+        if (strpbrk($a, ':')){
+            $filterType = substr($a, strpos($a, ':') + 1, -1);
+            return $a = str_replace($a, $this->filter[$filterType], $a);
+        } elseif (strpbrk($a, '(')) {
+            return $a = str_replace($a, $this->filter['any'], $a);
+        }
+        return $a;
+    }
+
+    private function setParamsNames($a){
+        if (strpbrk($a, ':')){
+            return $a = substr($a, 1 , strpos($a, ':')-1);
+            //var_dump($a);
+        } elseif (strpbrk($a, '(')) {
+            return $a = substr($a, 1 , -1);
+        }
+        return $a;
     }
 
     public function buildRoute($name, array $params = array(), $absolute = false)
@@ -133,9 +130,7 @@ class Route extends AbstractRoute
                     unset($tempUrl[$k]);
                 }
             }
-
             $this->buildUrl($tempUrl, $absolute);
-
         }
     }
 

@@ -7,9 +7,9 @@ abstract class AbstractRoute
     protected $params = [];
 
     protected $filter = array(
-        'number' => '[0-9]+',
+        'num' => '[0-9]+',
         'string' => '[a-zA-Z]+',
-        'any' => '[a-zA-Z0-9\-_]+'
+        'any' => "[a-zA-Z0-9\-_]+"
     );
 
     protected $routes = array(
@@ -26,7 +26,7 @@ abstract class AbstractRoute
         $this->pattern[$name] = $filter;
     }
 
-    abstract public function findRoute($uri, $method);
+    abstract public function findRoute($path, $method);
 
 
     /**
