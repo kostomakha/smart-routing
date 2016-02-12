@@ -39,7 +39,7 @@ class Route extends AbstractRoute
      * @param string $method
      * @return bool
      */
-    public function add($name, $pattern, $controller, $params = array(), $method = 'GET')
+    public function add($name, $pattern, $defaultParams = [], $controller, $method = 'GET')
     {
 
         $method = strtoupper($method);
@@ -50,7 +50,8 @@ class Route extends AbstractRoute
 
         $this->routes[$method][$name] = array(
             'pattern' => $pattern,
-            'controller' => $controller
+            'defaultParams' => $defaultParams,
+            'controller' => $controller,
         );
 
         //$this->saveRoutes();
@@ -95,17 +96,39 @@ class Route extends AbstractRoute
                     return $this->parseController(end($route));
                 }
             }
-//            elseif(strpbrk($pattern, '?')) {
-//                foreach ($patternArray as $k => $v) {
-//                    if (!strpbk($v, '(')) {
-//
-//                    }else (strpbrk($v, '?:(')) {
-//                        $v = $this->replaceForFilter($v);
-//                    } elseif {
-//
-//                    }
-//                }
-//            }
+            elseif(strpbrk($pattern, '?')) {
+                foreach ($patternArray as $k => $v) {
+                    echo "$k ====== $v";
+                    if (strpbrk($v, '?')) {
+                        $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
+
+                    } elseif (strpbrk($v, '(')) {
+                        $patternMatcherArray[$k] = $this->replaceForFilter($v);
+                    } elseif  (!strpbrk($v, '(')) {
+                        $patternMatcherArray[$k] = '\/' . $v . '\/';
+                    }
+                }
+
+                $patternMatcher2 = implode('', $patternMatcherArray);
+
+                preg_match('\'' . $patternMatcher2 . '\'', $path, $matched);
+
+                if ($matched) {
+
+                    $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
+
+                    foreach ($patternArray as $k => $v) {
+
+                        if (strpbrk($v, '(')) {
+                            if(array_key_exists($k, $queryArray)){
+                                $this->params[$paramsNameArray[$k]] = $queryArray[$k];
+                            }
+                        }
+                    }
+
+                    return $this->parseController(end($route));
+                }
+            }
         }
     }
 
@@ -122,28 +145,33 @@ class Route extends AbstractRoute
     private function setParamsNames($a){
         if (strpbrk($a, ':')){
             return $a = substr($a, 1 , strpos($a, ':')-1);
-            //var_dump($a);
         } elseif (strpbrk($a, '(')) {
             return $a = substr($a, 1 , -1);
         }
         return $a;
     }
 
-    public function buildRoute($name, array $params = array(), $absolute = false)
-    {
-        $patternArray = $this->getRoutePattern($name);
-
-        if($params) {
-            $tempUrl = $patternArray;
-
-            foreach ($tempUrl as $k => $v) {
-                if (strrpos($v, ')')) {
-                    unset($tempUrl[$k]);
-                }
-            }
-            $this->buildUrl($tempUrl, $absolute);
-        }
-    }
+//    public function buildRoute($name, array $params = array(), $absolute = false)
+//    {
+//        echo "$name";
+//        var_dump($name);
+//        $pattern = $this->getRoutePattern($name);
+//        var_dump($pattern);
+//        $routeDefaultParams = $this->getRouteDefaultParams($name);
+//        var_dump($routeDefaultParams);
+//
+//        if ($params && $routeDefaultParams) {
+//            $params = array_replace_recursive($routeDefaultParams, $params);
+//
+//        } elseif (!$params) {
+//
+//        } elseif (!$routeDefaultParams) {
+//
+//        } else {
+//            echo "не достаточно параметров";
+//        }
+//
+//    }
 
     protected function parseController($data)
     {
@@ -151,7 +179,7 @@ class Route extends AbstractRoute
             $controllerArray = explode(':', $data);
             $controllerArray = $controllerArray + $this->params;
             return $controllerArray;
-        }else {
+        } else {
             $controllerArray[0] = $data;
             return $controllerArray;
         }
@@ -160,11 +188,17 @@ class Route extends AbstractRoute
     private function getRoutePattern($name)
     {
         foreach ($this->routes as $method => $routeName) {
-            if($name == $routeName){
-                foreach ($routeName as $k => $v){
-                    return $tempArray = explode('/', trim($this->routes['pattern'], '/'));
-                }
-            }
+
+            var_dump($routeName);
+            return $tempArray = trim($routeName[$name]['pattern'], '/');
+        }
+    }
+
+    private function getRouteDefaultParams($name)
+    {
+        foreach ($this->routes as $method => $routeName) {
+            var_dump($routeName);
+            return $tempArray = $routeName[$name]['defaultParams'];
         }
     }
 
