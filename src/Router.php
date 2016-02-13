@@ -9,7 +9,7 @@
 namespace SmartRouting;
 use SmartRouting\Routing\AbstractRouter;
 use SmartRouting\Route;
-use SmartRouting\Request;
+use HttpExchange\Request\Request;
 
 class Router extends AbstractRouter
 {
