@@ -7,55 +7,26 @@
  */
 
 namespace SmartRouting;
-use SmartRouting\Basic\AbstractRoute;
+use SmartRouting\Routing\AbstractRoute;
+use SmartRouting\Routes;
+use SmartRouting\Routing\Exception\RoutingException;
 
 class Route extends AbstractRoute
 {
-    private $routeFile = '/home/roach/Projects/nix6/smart-routing/src/routes/routes.php';
-    private $base = 'http://www.example.com';
+    protected $params = [];
 
-    protected $pattern = array(
-        'id' => 'number',
-        'name' => 'string',
-        'age' => 'any',
-        'article' => 'any',
-        'category' => 'any',
-        'course' => 'any'
+    protected $filter = array(
+        'num' => '[0-9]+',
+        'string' => '[a-zA-Z]+',
+        'any' => '[a-zA-Z0-9\-_]+'
     );
 
+    protected $routes = [];
 
     public function __construct()
     {
-        //$this->readRoutes();
-        $this->add('default','/','Main:index', 'GET');
-        //var_dump($this->routes);
-    }
-
-    /**
-     * @param $name
-     * @param $pattern
-     * @param $controller
-     * @param array $params
-     * @param string $method
-     * @return bool
-     */
-    public function add($name, $pattern, $defaultParams = [], $controller, $method = 'GET')
-    {
-
-        $method = strtoupper($method);
-
-        if (array_key_exists($name, $this->routes[$method])){
-            $this->deleteRoute($name);
-        }
-
-        $this->routes[$method][$name] = array(
-            'pattern' => $pattern,
-            'defaultParams' => $defaultParams,
-            'controller' => $controller,
-        );
-
-        //$this->saveRoutes();
-        return true;
+        $this->routesContainer = Routes::getInstance();
+        $this->routes = $this->routesContainer->getRoutes();
     }
 
     public function findRoute($path, $method)
@@ -98,7 +69,7 @@ class Route extends AbstractRoute
             }
             elseif(strpbrk($pattern, '?')) {
                 foreach ($patternArray as $k => $v) {
-                    echo "$k ====== $v";
+                   //echo "$k ====== $v";
                     if (strpbrk($v, '?')) {
                         $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
 
@@ -142,6 +113,41 @@ class Route extends AbstractRoute
         return $a;
     }
 
+    public function buildRoute($name, array $params = array(), $absolute = false)
+    {
+        echo "$name";
+        var_dump($name);
+        $pattern = $this->getRoutePattern($name);
+        var_dump($pattern);
+
+        if ($params) {
+            $patternArray = explode('/', trim($pattern, '/'));
+            $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
+            var_dump($paramsNameArray);
+
+            foreach ($params as $k => $v) {
+
+                if (in_array($k, $paramsNameArray)) {
+
+                    $key = array_search($k, $paramsNameArray);
+                    var_dump($key);
+                    $paramsNameArray[$key] = $params[$k];
+                } else {
+                    throw new RoutingException("Not not enough parameters");
+                }
+            }
+            $path = $this->buildPath($paramsNameArray);
+            var_dump($path);
+        }  else {
+            throw new RoutingException("Not not enough parameters");
+        }
+
+    }
+
+    public function addFilter($name, $filter){
+        $this->pattern[$name] = $filter;
+    }
+
     private function setParamsNames($a){
         if (strpbrk($a, ':')){
             return $a = substr($a, 1 , strpos($a, ':')-1);
@@ -150,28 +156,6 @@ class Route extends AbstractRoute
         }
         return $a;
     }
-
-//    public function buildRoute($name, array $params = array(), $absolute = false)
-//    {
-//        echo "$name";
-//        var_dump($name);
-//        $pattern = $this->getRoutePattern($name);
-//        var_dump($pattern);
-//        $routeDefaultParams = $this->getRouteDefaultParams($name);
-//        var_dump($routeDefaultParams);
-//
-//        if ($params && $routeDefaultParams) {
-//            $params = array_replace_recursive($routeDefaultParams, $params);
-//
-//        } elseif (!$params) {
-//
-//        } elseif (!$routeDefaultParams) {
-//
-//        } else {
-//            echo "не достаточно параметров";
-//        }
-//
-//    }
 
     protected function parseController($data)
     {
@@ -202,13 +186,26 @@ class Route extends AbstractRoute
         }
     }
 
-    protected function readRoutes()
+    protected function buildPath($data)
     {
-        $this->routes = include $this->routeFile;
+        if (is_array($data)) {
+            $path = '/' . implode('/', $data);
+            return $path;
+        } elseif (is_string($data)) {
+            $path = $data;
+            return $path;
+        }
     }
 
-    protected function saveRoutes()
+    protected function buildAbsolutePath($data)
     {
-        file_put_contents ( $this->routeFile , '<?php return '.var_export( $this->routes, true ).";\n");
+        if (is_array($data)) {
+            $path = $this->base . '/' . implode('/', $data);
+            return $path;
+        } elseif (is_string($data)) {
+            $path = $this->base . $data;
+            return $path;
+        }
+        return $path = $this->base . $data;
     }
 }

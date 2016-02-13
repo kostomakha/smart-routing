@@ -7,7 +7,8 @@
  */
 
 namespace SmartRouting;
-use SmartRouting\Basic\AbstractRouter;
+use SmartRouting\Routing\AbstractRouter;
+use SmartRouting\Route;
 use SmartRouting\Request;
 
 class Router extends AbstractRouter
@@ -15,8 +16,7 @@ class Router extends AbstractRouter
     protected $request;
     protected $method;
     protected $uri;
-    protected $routes;
-
+    public $route;
 
     /**
      * Router constructor.
@@ -30,24 +30,28 @@ class Router extends AbstractRouter
         $this->uri = $this->request->getUri()->getPath();
 
         $this->method = strtoupper($this->request->getMethod());
+
+        $this->route = new Route();
     }
 
-    public function getRoute($route)
+    public function getRoute()
     {
-        $this->routes = $route;
 
-        $route = $this->routes->findRoute($this->uri, $this->method);
+        $route = $this->route->findRoute($this->uri, $this->method);
         var_dump($route);
 
         if ($route != 0 && is_array($route)) {
 
             $this->setResult($route);
-
+            return $this;
         } else {
             $this->controller = 'DefaultController';
             $this->action = 'ActionIndex';
+            return $this;
         }
     }
+
+
 
     public function route($name)
     {
@@ -73,6 +77,6 @@ class Router extends AbstractRouter
     }
 
     protected function formatResult($data) {
-        return $formated = ucfirst(strtolower($data));
+        return $formated = ucfirst($data);
     }
 }

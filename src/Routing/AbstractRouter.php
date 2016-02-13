@@ -6,7 +6,7 @@
  * Time: 11:26 AM
  */
 
-namespace SmartRouting\Basic;
+namespace SmartRouting\Routing;
 
 abstract class AbstractRouter
 {
@@ -14,23 +14,15 @@ abstract class AbstractRouter
     protected $action;
     protected $params = [];
 
-    /**
-     * @param $route
-     */
-    abstract public function getRoute($route);
+
+    abstract public function getRoute();
 
     abstract public function route($name);
-    /**
-     * @return mixed
-     */
+
     public function getController()
     {
         return $this->controller;
     }
-
-    /**
-     * @return mixed
-     */
 
     public function getAction()
     {
