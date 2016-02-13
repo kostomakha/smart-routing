@@ -144,23 +144,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue($methodR));
 
         $request->expects($this->any())
-            ->method('getPath')
-            ->will($this->returnValue($path));
-
-        $request->expects($this->any())
             ->method('getUri')
             ->will($this->returnValue($uri));
 
+        $uri->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue($path));
 
 
         $router = new \SmartRouting\Router($request);
 
         $controller = $router->getRoute()->getController();
-        //var_dump($controller);
-        //$this->assertEquals($expectedController, $controller->getController());
-        //$this->assertEquals($expectedAction, $controller->getAction());
-//        var_dump($router->getParams());
-//        //(id:num)/(name:string?)/(sex:num?)
-        //var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
+        $action = $router->getRoute()->getAction();
+        var_dump($controller);
+        $this->assertEquals($expectedController, $controller);
+        $this->assertEquals($expectedAction, $action);
+
+        var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
     }
 }

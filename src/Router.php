@@ -34,32 +34,37 @@ class Router extends AbstractRouter
         $this->route = new Route();
     }
 
+    /**
+     * @return $this
+     */
     public function getRoute()
     {
-
         $route = $this->route->findRoute($this->uri, $this->method);
-        var_dump($route);
 
         if ($route != 0 && is_array($route)) {
-
             $this->setResult($route);
             return $this;
         } else {
             $this->controller = 'DefaultController';
-            $this->action = 'ActionIndex';
+            $this->action = 'actionIndex';
             return $this;
         }
     }
 
-
-
+    /**
+     * @param $name
+     * @return $this
+     */
     public function route($name)
     {
         $this->setResult($this->routes->route($name));
         return $this;
     }
 
-    protected function setResult($routeArray)
+    /**
+     * @param $routeArray
+     */
+    private function setResult($routeArray)
     {
         $this->controller = $this->formatResult(array_shift($routeArray)) . 'Controller';
         if ($routeArray) {
@@ -76,7 +81,7 @@ class Router extends AbstractRouter
         }
     }
 
-    protected function formatResult($data) {
+    private function formatResult($data) {
         return $formated = ucfirst($data);
     }
 }
