@@ -2,6 +2,7 @@
     "name": "kostomakha/smart-routing",
     "description": "easy and cool routing",
     "license": "MIT",
+    "type": "library",
     "authors": [
         {
             "name": "Kostyantyn Kedrya",
