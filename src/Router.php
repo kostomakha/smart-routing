@@ -51,14 +51,14 @@ class Router extends AbstractRouter
         }
     }
 
+
     /**
      * @param $name
      * @return $this
      */
-    public function route($name)
+    public function buildRoute($name, array $params)
     {
-        $this->setResult($this->routes->route($name));
-        return $this;
+        $this->route->buildRoute($name, $params);
     }
 
     /**

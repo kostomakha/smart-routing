@@ -148,9 +148,7 @@ class Route extends AbstractRoute
 
     public function buildRoute($name, array $params = array(), $absolute = false)
     {
-
-        echo "$name";
-
+        var_dump($params);
         $pattern = $this->getRoutePattern($name);
 
         if ($params) {
@@ -164,20 +162,27 @@ class Route extends AbstractRoute
                 if (in_array($k, $paramsNameArray)) {
 
                     $key = array_search($k, $paramsNameArray);
-                    var_dump($key);
+
                     $paramsNameArray[$key] = $params[$k];
+
                 } else {
+
                     throw new RoutingException("Not not enough parameters");
+
                 }
+
+                return $this->buildPath($paramsNameArray);
+
             }
             $path = $this->buildPath($paramsNameArray);
 
-        }  else {
+        } elseif (empty($params) && !strpbrk($pattern, '(')) {
 
+            return $this->buildPath($pattern);
+
+        } else {
             throw new RoutingException("Not not enough parameters");
-
         }
-
     }
 
     public function addFilter($name, $filter) {

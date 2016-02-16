@@ -160,6 +160,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedController, $controller);
         $this->assertEquals($expectedAction, $action);
 
-        var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
+        var_dump($router->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
     }
 }

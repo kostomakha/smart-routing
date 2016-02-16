@@ -17,8 +17,6 @@ abstract class AbstractRouter
 
     abstract public function getRoute();
 
-    abstract public function route($name);
-
     public function getController()
     {
         return $this->controller;
