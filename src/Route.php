@@ -25,6 +25,7 @@ class Route extends AbstractRoute
 
     public function __construct()
     {
+        parent::__construct();
         $this->routesContainer = Routes::getInstance();
         $this->routes = $this->routesContainer->getRoutes();
     }
@@ -172,6 +173,7 @@ class Route extends AbstractRoute
                 }
 
             }
+
             $path = $this->buildPath($paramsNameArray);
 
         }  else {

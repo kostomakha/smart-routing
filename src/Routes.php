@@ -36,7 +36,7 @@ class Routes extends AbstractRouteCollection
     /**
      * Routes constructor.singleton
      */
-    private  function __construct()
+    protected  function __construct()
     {
     }
     public static function getInstance()
@@ -108,6 +108,7 @@ class Routes extends AbstractRouteCollection
      * Get routes array
      * @return array
      */
+
     public function getRoutes()
     {
         return self::$routes;
