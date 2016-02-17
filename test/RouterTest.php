@@ -12,6 +12,7 @@ use SmartRouting\Request;
  */
 class RouterTest extends PHPUnit_Framework_TestCase
 {
+
     public function providerRouter()
     {
         return array(
@@ -19,6 +20,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
             //'numbers' => array(1, 1, 1, 1, 1, 1, 'ErrorController', 'ActionError'),
             'default' => array('/', 'get', 'default', '/', 'default:index', 'GET', 'DefaultController', 'actionIndex'),
             'contacts' => array(
+                '/contacts',
+                'get',
+                'contacts',
+                '/contacts',
+                'contacts:showcontacts',
+                'GET',
+                'ContactsController',
+                'actionShowcontacts'
+            ),
+            'contacts2' => array(
                 '/contacts',
                 'get',
                 'contacts',
@@ -116,6 +127,9 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
 
         Routes::add($name, $pattern, $controller, $method);
+        //$routes = Routes::getInstance();
+        //$r = $routes->getRoutes();
+        //var_dump($r);
 
         $request = $this->getMockBuilder('SmartRouting\Request')
             ->setMethods(array('getUri', 'getMethod'))
@@ -129,23 +143,23 @@ class RouterTest extends PHPUnit_Framework_TestCase
             ->method('getMethod')
             ->will($this->returnValue($methodR));
 
-        $uri->expects($this->any())
-            ->method('getPath')
-            ->will($this->returnValue($path));
-
         $request->expects($this->any())
             ->method('getUri')
             ->will($this->returnValue($uri));
 
+        $uri->expects($this->any())
+            ->method('getPath')
+            ->will($this->returnValue($path));
 
 
         $router = new \SmartRouting\Router($request);
 
+        $controller = $router->getRoute()->getController();
+        $action = $router->getRoute()->getAction();
+        var_dump($controller);
+        $this->assertEquals($expectedController, $controller);
+        $this->assertEquals($expectedAction, $action);
 
-        $this->assertEquals($expectedController, $router->getRoute()->getController());
-        $this->assertEquals($expectedAction, $router->getRoute()->getAction());
-//        var_dump($router->getParams());
-//        //(id:num)/(name:string?)/(sex:num?)
-        //var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
+        var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
     }
 }
