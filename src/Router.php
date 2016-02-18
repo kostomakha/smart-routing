@@ -7,9 +7,10 @@
  */
 
 namespace SmartRouting;
+
 use SmartRouting\Routing\AbstractRouter;
 use SmartRouting\Route;
-//use HttpExchange\Request\Request;
+
 
 class Router extends AbstractRouter
 {
@@ -53,6 +54,7 @@ class Router extends AbstractRouter
 
 
     /**
+     *
      * @param $name
      * @return $this
      */
@@ -73,7 +75,7 @@ class Router extends AbstractRouter
                 foreach ($routeArray as $k => $v) {
                     $this->params[$k] = $v;
                 }
-            }else {
+            } else {
                 $this->params = [];
             }
         } else {
@@ -81,7 +83,12 @@ class Router extends AbstractRouter
         }
     }
 
-    private function formatResult($data) {
+    /**
+     * @param $data
+     * @return string
+     */
+    private function formatResult($data)
+    {
         return $formated = ucfirst($data);
     }
 }
