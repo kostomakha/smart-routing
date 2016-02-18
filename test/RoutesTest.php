@@ -12,11 +12,11 @@ use SmartRouting\Routes;
 
 class RoutesTest extends PHPUnit_Framework_TestCase
 {
-    public function providerRouter()
+    public function providerRoutes()
     {
         return array(
-            'zeros' => array(0, 0, 0, 0, 0, 0, 'ErrorController', 'ActionError'),
-            'numbers' => array(1, 1, 1, 1, 1, 1, 'ErrorController', 'ActionError'),
+            'zeros' => array(0, 0, 0, 0),
+            'numbers' => array(1, 1, 1, 1),
             'default' => array('default', '/', 'default:index', 'GET', 'DefaultController', 'actionIndex'),
             'contacts' => array(
                 'contacts',
@@ -59,7 +59,7 @@ class RoutesTest extends PHPUnit_Framework_TestCase
 
     /**
      * Testing addValues returns sum of two values
-     * @dataProvider providerRouter
+     * @dataProvider providerRoutes
      *
      * @param $path
      * @param $methodR
@@ -75,22 +75,16 @@ class RoutesTest extends PHPUnit_Framework_TestCase
         Routes::add($name, $pattern, $controller, $method);
 
         $routes = Routes::getInstance();
-        $reflection = new ReflectionClass($routes);
-        $instance = $reflection->getProperty('instance');
-        $instance->setAccessible(true); // now we can modify that :)
-        $instance->setValue(null, null); // instance is gone
 
+        $reflection = new \ReflectionClass($routes);
 
-        var_dump($routes = Routes::getInstance());
-        var_dump($routes->getRoutes());
-        $routes = new ReflectionClass($routes);
-        $instance = $reflection->getProperty('routes');
-        $instance->setAccessible(true); // now we can modify that :)
-        $routesArray = $routes->getStaticPropertyValue('routes');
+        $property = $reflection->getProperty('routes');
 
+        $property->setAccessible(true);
 
-        //$routes = Routes::getInstance();
+        $routesArray = $property->getValue('routes');
+
         $this->assertArrayHasKey($name, $routesArray[$method]);
-
     }
+
 }
