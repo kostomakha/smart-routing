@@ -16,8 +16,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function providerRouter()
     {
         return array(
-            //'zeros' => array(0, 0, 0, 0, 0, 0, 'ErrorController', 'ActionError'),
-            //'numbers' => array(1, 1, 1, 1, 1, 1, 'ErrorController', 'ActionError'),
+            'zeros' => array(0, 0, 0, 0, 0, 0, 'ErrorController', 'ActionError'),
+            'numbers' => array(1, 1, 1, 1, 1, 1, 'ErrorController', 'ActionError'),
             'default' => array('/', 'get', 'default', '/', 'default:index', 'GET', 'DefaultController', 'actionIndex'),
             'contacts' => array(
                 '/contacts',
@@ -41,19 +41,19 @@ class RouterTest extends PHPUnit_Framework_TestCase
             ),
             'content1' => array(
                 '/category/php/loops-switches',
-                'get',
+                'post',
                 'content1',
                 '/category/php/loops-switches',
                 'content',
-                'GET',
+                'post',
                 'ContentController',
                 'actionIndex'
             ),
             'category1' => array(
-                '/category/java/oop',
+                '/categories/java/oop',
                 'get',
                 'category1',
-                '/category/(category)/(course)',
+                '/categories/(category)/(course)',
                 'category:course',
                 'GET',
                 'CategoryController',
@@ -127,9 +127,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
 
         Routes::add($name, $pattern, $controller, $method);
-        //$routes = Routes::getInstance();
-        //$r = $routes->getRoutes();
-        //var_dump($r);
 
         $request = $this->getMockBuilder('SmartRouting\Request')
             ->setMethods(array('getUri', 'getMethod'))
@@ -152,14 +149,94 @@ class RouterTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue($path));
 
 
-        $router = new \SmartRouting\Router($request);
+        $router = new Router($request);
+        var_dump(Routes::getRoutes());
+        var_dump($router->getRoute()->getAction());
+        $this->assertEquals($expectedController, $router->getRoute()->getController());
+        $this->assertEquals($expectedAction, $router->getRoute()->getAction());
 
-        $controller = $router->getRoute()->getController();
-        $action = $router->getRoute()->getAction();
-        var_dump($controller);
-        $this->assertEquals($expectedController, $controller);
-        $this->assertEquals($expectedAction, $action);
-
-        var_dump($router->route->buildRoute($name, ['id'=>'345345', 'name'=>'frodo','sex'=>'1']));
+        var_dump($router->getParams());
     }
+
+    public function providerBuildRoute()
+    {
+        return array(
+           'contacts' => array(
+                'contacts',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '/contacts'
+            ),
+            'content1' => array(
+                'content1',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '/category/php/loops-switches'
+            ),
+            'category1' => array(
+                'category1',
+                'category',
+                'python',
+                'course',
+                'Loops',
+                '',
+                '',
+                '/categories/python/Loops'
+            ),
+            'profile' => array(
+                'profile',
+                'id',
+                '1156',
+                'name',
+                'Ivan',
+                'sex',
+                '1'.
+                '/user/1156/Ivan/1'
+            ),
+            'profile2' => array(
+                'profile2',
+                'id',
+                '123',
+                'name',
+                'Jhon',
+                '',
+                '',
+                '/user2/123/Jhon'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider providerBuildRoute
+     *
+     * @param $name
+     * @param $param1
+     * @param $param2
+     * @param $param3
+     * @param $expected
+     * @throws \SmartRouting\Routing\Exception\RoutingException
+     */
+    public function testBuildRoute($name, $paramName1, $param1, $paramName2, $param2, $paramName3, $param3, $expected)
+    {
+        $route = new Route();
+
+//        $url = $route->buildRoute($name, [$paramName1 => $param1, $paramName2 => $param2], false);
+//
+//        $this->assertEquals($expected, $url);
+
+        $url = $route->buildRoute($name, [$paramName1 => $param1, $paramName2 => $param2, $paramName3 => $param3], false);
+
+        $this->assertEquals($expected, $url);
+
+
+    }
+
 }
