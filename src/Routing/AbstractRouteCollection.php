@@ -20,14 +20,17 @@ abstract class AbstractRouteCollection
 
     }
 
-    abstract public function getRoutes();
-
-    protected static function readRoutes()
+    public static function getRoutes()
     {
 
     }
 
-    protected static function saveRoutes()
+    public static function readRoutes()
+    {
+
+    }
+
+    public static function saveRoutes()
     {
 
     }
