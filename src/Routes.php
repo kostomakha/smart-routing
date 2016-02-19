@@ -94,6 +94,7 @@ class Routes extends AbstractRouteCollection
     /**
      * Delete route
      * @param $name
+     * @return bool|void
      */
     public static function deleteRoute($name)
     {
@@ -102,15 +103,16 @@ class Routes extends AbstractRouteCollection
                 unset (self::$routes[$method][$name]);
             }
         }
+        return true;
     }
 
     /**
      * Read routes from file
      */
-    public static function readRoutes()
+    public static function readRoutes($path)
     {
-        $routesFile = dirname(__FILE__) . '/Routes/routes.php';
-        self::$routes = include $routesFile;
+        self::$fileRoutes = dirname(dirname(__DIR__)) . $path;
+        self::$routes = include_once self::$fileRoutes;
     }
 
     /**
@@ -120,6 +122,6 @@ class Routes extends AbstractRouteCollection
 
     public static function getRoutes()
     {
-        return (array) self::$routes;
+        return self::$routes;
     }
 }
