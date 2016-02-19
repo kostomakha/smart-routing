@@ -9,7 +9,6 @@
 namespace SmartRouting;
 
 use SmartRouting\Routing\AbstractRouter;
-use SmartRouting\Route;
 
 
 class Router extends AbstractRouter
@@ -52,13 +51,16 @@ class Router extends AbstractRouter
 
 
     /**
-     *
-     * @param $name
+     * Buiild url by name and params
+     * @param $name - of the route which will be built
+     * @param array $params which will be sent to the route pattern
+     * @param $absolute - default value true if false url built without  hostname
      * @return $this
+     * @throws Routing\Exception\RoutingException
      */
-    public function buildRoute($name, array $params)
+    public function buildRoute($name, array $params, $absolute = true)
     {
-        $this->route->buildRoute($name, $params);
+        return $this->route->buildRoute($name, $params, $absolute);
     }
 
     /**
