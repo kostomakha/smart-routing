@@ -1,8 +1,9 @@
 {
     "name": "kostomakha/smart-routing",
+    "type": "library",
     "description": "easy and cool routing",
     "license": "MIT",
-    "version": "1.0.0",
+    "type": "library",
     "authors": [
         {
             "name": "Kostyantyn Kedrya",
@@ -11,8 +12,7 @@
     ],
 
     "require": {
-        "php": ">=5.5",
-        "phpunit/phpunit": "5.2.*"
+        "php": ">=5.5"
     },
     "autoload": {
         "psr-4": {

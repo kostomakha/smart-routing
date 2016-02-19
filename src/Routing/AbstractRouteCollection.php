@@ -11,13 +11,25 @@ namespace SmartRouting\Routing;
 
 abstract class AbstractRouteCollection
 {
-    abstract public static function add($name, $pattern, $controller, $method = 'GET');
+    public static function add($name, $pattern, $controller, $method = 'GET')
+    {
 
-    abstract public static function deleteRoute($name);
+    }
+
+    public static function deleteRoute($name) {
+
+    }
 
     abstract public function getRoutes();
 
-    abstract protected static function readRoutes();
+    protected static function readRoutes()
+    {
 
-    abstract protected static function saveRoutes();
+    }
+
+    protected static function saveRoutes()
+    {
+
+    }
+
 }
