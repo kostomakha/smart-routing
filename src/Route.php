@@ -157,11 +157,11 @@ class Route extends AbstractRoute
      * Builed route with or without prams
      * @param $name - what route we select
      * @param array $params - optional params for route
-     * @param int $absolute - key build absolute or n
+     * @param boolean $absolute
      * @return bool|string
      * @throws RoutingException
      */
-    public function buildRoute($name, array $params = array(), $absolute = null)
+    public function buildRoute($name, array $params = array(), $absolute = true)
     {
         $this->name = $name;
         $pattern = $this->getRoutePattern($this->name);
