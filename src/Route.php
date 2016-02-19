@@ -53,6 +53,11 @@ class Route extends AbstractRoute
         $this->routes = Routes::getRoutes();
     }
 
+    /**
+     * @param $path
+     * @param $method
+     * @return array|bool
+     */
     public function findRoute($path, $method)
     {
         $method = strtoupper($method);
@@ -97,8 +102,11 @@ class Route extends AbstractRoute
 
             //If pattern have some optional parameters
             } elseif (strpbrk($pattern, '?')) {
+                $patternMatcherArray = [];
 
-                //build pattern match
+                /**
+                 * build pattern match
+                 */
                 foreach ($patternArray as $k => $v) {
                     if (strpbrk($v, '?')) {
                         $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
@@ -114,13 +122,14 @@ class Route extends AbstractRoute
                 preg_match('\'' . $patternMatcher . '\'', $path, $matched);
 
                 if ($matched) {
-
                     //save params for optional routes
                     $this->saveQueryParameters($patternArray, $queryArray);
                     return $this->parseController(end($route));
                 }
             }
         }
+
+        return false;
     }
 
     /**
@@ -255,12 +264,16 @@ class Route extends AbstractRoute
                 return $tempArray = trim($routeName[$name]['pattern'], '/');
             }
         }
+
+        return false;
     }
 
     /**
      * Save paremters to $params array if uri been matched
-     * @param $patteren
-     * @param $query
+     * @param $patternArray
+     * @param $queryArray
+     * @return array $this->params or false
+     * @internal param $patteren
      */
     private function saveQueryParameters($patternArray, $queryArray)
     {
@@ -272,6 +285,7 @@ class Route extends AbstractRoute
                 }
             }
         }
+        return false;
     }
 
     /**
@@ -282,7 +296,6 @@ class Route extends AbstractRoute
      */
     protected function buildPath($data, $absolute = null)
     {
-        var_dump($absolute);
         if ($absolute) {
             if (is_array($data)) {
                 $path = $this->hostname . '/' . implode('/', $data);
@@ -298,6 +311,7 @@ class Route extends AbstractRoute
                 return $path = $data;
             }
         }
+
         return false;
     }
 }
