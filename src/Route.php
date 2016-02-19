@@ -7,283 +7,311 @@
  */
 
 namespace SmartRouting;
+
 use SmartRouting\Routing\AbstractRoute;
-use SmartRouting\Routes;
+
 use SmartRouting\Routing\Exception\RoutingException;
 
 class Route extends AbstractRoute
 {
+    /**
+     * @var array saving params from uri if
+     */
     protected $params = [];
 
+    /**
+     * @var
+     */
+    protected $path;
+
+    /**
+     * @var route name
+     */
+    protected $name;
+
+    /**
+     * @var string sitehostname
+     */
+    protected $hostname = 'http://www.itcourses.com';
+
+    /**
+     * @var array here we put all routes from Routes
+     */
+    protected $routes = [];
+
+    /**
+     * @var array default filtes for matching
+     */
     protected $filter = array(
         'num' => '[0-9]+',
         'string' => '[a-zA-Z]+',
-        'any' => '[a-zA-Z0-9\-_]+'
+        'any' => '[a-zA-Z]+'
     );
-
-    protected $routes = [];
 
     public function __construct()
     {
-        $this->routesContainer = Routes::getInstance();
-        $this->routes = $this->routesContainer->getRoutes();
+        $this->routes = Routes::getRoutes();
     }
 
+    /**
+     * @param $path
+     * @param $method
+     * @return array|bool
+     */
     public function findRoute($path, $method)
     {
+        $method = strtoupper($method);
 
+        //select all routes which corresponded to $method
         $routes = $this->routes[$method];
 
         $queryArray = explode('/', trim($path, '/'));
 
         foreach ($routes as $name => $route) {
 
+            //if patter equles path we done
             if (in_array($path, $route)) {
-
                 return $this->parseController(end($route));
-
             }
 
             $pattern = $route['pattern'];
-
             $patternArray = explode('/', trim($pattern, '/'));
 
-            if(!strpbrk($pattern, '?') && strpbrk($pattern, '(')) {
+            //check, have we some optionals parameters
+            if (!strpbrk($pattern, '?') && strpbrk($pattern, '(')) {
+
+
+                /**
+                 * Replace all params for proper pregmatch that we stored in our $filters property
+                 * Call a replaceFilter() method on $patternArray values
+                 */
 
                 $patternArrayFiltered = array_map(array($this, 'replaceForFilter'), $patternArray);
-
                 $patternMatcher = '/' . implode('/', $patternArrayFiltered);
 
+                //Do match
+                preg_match('\'' . $patternMatcher . '\'', $path, $matched);
+
+                //If matched lat's take params
+                if ($matched) {
+
+                    //Call a setParamsNmaes() method on every array value
+                    $this->saveQueryParameters($patternArray, $queryArray);
+                    return $this->parseController(end($route));
+                }
+
+            //If pattern have some optional parameters
+            } elseif (strpbrk($pattern, '?')) {
+                $patternMatcherArray = [];
+
+                /**
+                 * build pattern match
+                 */
+                foreach ($patternArray as $k => $v) {
+                    if (strpbrk($v, '?')) {
+                        $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
+                    } elseif (strpbrk($v, '(')) {
+                        $patternMatcherArray[$k] = $this->replaceForFilter($v);
+                    } elseif (!strpbrk($v, '(')) {
+                        $patternMatcherArray[$k] = '\/' . $v . '\/';
+                    }
+                }
+
+                //Do we have parameters
+                $patternMatcher = implode('', $patternMatcherArray);
                 preg_match('\'' . $patternMatcher . '\'', $path, $matched);
 
                 if ($matched) {
-
-                    $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
-
-                    foreach ($patternArray as $k => $v) {
-
-                        if (strpbrk($v, '(')) {
-
-                            $this->params[$paramsNameArray[$k]] = $queryArray[$k];
-
-                        }
-
-                    }
-
+                    //save params for optional routes
+                    $this->saveQueryParameters($patternArray, $queryArray);
                     return $this->parseController(end($route));
-
                 }
-
             }
-
-            elseif(strpbrk($pattern, '?')) {
-
-                foreach ($patternArray as $k => $v) {
-
-                    if (strpbrk($v, '?')) {
-
-                        $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
-
-                    } elseif (strpbrk($v, '(')) {
-
-                        $patternMatcherArray[$k] = $this->replaceForFilter($v);
-
-                    } elseif  (!strpbrk($v, '(')) {
-
-                        $patternMatcherArray[$k] = '\/' . $v . '\/';
-
-                    }
-
-                }
-
-                $patternMatcher2 = implode('', $patternMatcherArray);
-
-                preg_match('\'' . $patternMatcher2 . '\'', $path, $matched);
-
-                if ($matched) {
-
-                    $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
-
-                    foreach ($patternArray as $k => $v) {
-
-                        if (strpbrk($v, '(')) {
-
-                            if(array_key_exists($k, $queryArray)) {
-
-                                $this->params[$paramsNameArray[$k]] = $queryArray[$k];
-
-                            }
-
-                        }
-
-                    }
-
-                    return $this->parseController(end($route));
-
-                }
-
-            }
-
         }
 
+        return false;
     }
 
-    private function replaceForFilter($a) {
-
-        if (strpbrk($a, ':')) {
-
-            $filterType = substr($a, strpos($a, ':') + 1, -1);
-
+    /**
+     * This method replace all masks for preg_match from $filters
+     * @param $a
+     * @return mixed
+     */
+    private function replaceForFilter($a)
+    {
+        if (strpbrk($a, '?')) {
+            $filterType = substr($a, strpos($a, ':') + 1, -2);
             return $a = str_replace($a, $this->filter[$filterType], $a);
-
+        } elseif (strpbrk($a, ':') && !strpbrk($a, '?')) {
+            $filterType = substr($a, strpos($a, ':') + 1, -1);
+            return $a = str_replace($a, $this->filter[$filterType], $a);
         } elseif (strpbrk($a, '(')) {
-
             return $a = str_replace($a, $this->filter['any'], $a);
-
         }
 
         return $a;
 
     }
 
-    public function buildRoute($name, array $params = array(), $absolute = false)
+    /**
+     * Builed route with or without prams
+     * @param $name - what route we select
+     * @param array $params - optional params for route
+     * @param boolean $absolute
+     * @return bool|string
+     * @throws RoutingException
+     */
+    public function buildRoute($name, array $params = array(), $absolute = true)
     {
-
-        $pattern = $this->getRoutePattern($name);
-
+        $this->name = $name;
+        $pattern = $this->getRoutePattern($this->name);
+        var_dump($pattern);
         if ($params) {
-
             $patternArray = explode('/', trim($pattern, '/'));
-
+            $patternArrayFilter = array_map(array($this, 'replaceForFilter'), $patternArray);
             $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
 
-            foreach ($params as $k => $v) {
-
-                if (in_array($k, $paramsNameArray)) {
-
-                    $key = array_search($k, $paramsNameArray);
-
-                    $paramsNameArray[$key] = $params[$k];
+            foreach ($paramsNameArray as $k => $v) {
+                var_dump($v);
+                if (array_key_exists($v, $params)) {
+//                    $key = array_search($k, $paramsNameArray);
+//                    var_dump($key);
+                    preg_match('/' . $patternArrayFilter[$k] . '/', $params[$v], $matched);
+                    if ($matched) {
+                        $paramsNameArray[$k] = $params[$v];
+                    } else {
+                        throw new RoutingException("Unexpected parameter $v");
+                    }
 
                 } else {
-
-                    throw new RoutingException("Not not enough parameters");
+                    if (!strpbrk($patternArray[$k], ')')) {
+                        $paramsNameArray[$k] = $v;
+                    } elseif (strpbrk($patternArray[$k], '?')) {
+                        unset($paramsNameArray[$k]);
+                    } else {
+                        throw new RoutingException("Not not enough parameters");
+                    }
 
                 }
+                var_dump($this->buildPath($paramsNameArray, $absolute));
+
 
             }
-            $path = $this->buildPath($paramsNameArray);
+            return $this->buildPath($paramsNameArray, $absolute);
 
-        }  else {
+        } elseif (empty($params) && !strpbrk($pattern, '(')) {
+
+            return $this->buildPath($pattern, $absolute);
+
+        } else {
 
             throw new RoutingException("Not not enough parameters");
 
         }
+    }
+
+    /**
+     * @param $name
+     * @param $preg
+     */
+    public function addFilter($name, $preg)
+    {
+
+        $this->filter[$name] = $preg;
 
     }
 
-    public function addFilter($name, $filter) {
-
-        $this->pattern[$name] = $filter;
-
-    }
-
-    private function setParamsNames($a) {
-
+    /**
+     * @param $a
+     * @return string
+     */
+    private function setParamsNames($a)
+    {
         if (strpbrk($a, ':')) {
-
-            return $a = substr($a, 1 , strpos($a, ':')-1);
-
+            return $a = substr($a, 1, strpos($a, ':') - 1);
         } elseif (strpbrk($a, '(')) {
-
-            return $a = substr($a, 1 , -1);
-
+            return $a = substr($a, 1, -1);
         }
-
         return $a;
-
     }
 
+    /**
+     * Reteruna controller action, and params
+     * @param $data
+     * @return array
+     */
     protected function parseController($data)
     {
         if (strpos($data, ':')) {
-
             $controllerArray = explode(':', $data);
-
             $controllerArray = $controllerArray + $this->params;
-
             return $controllerArray;
-
         } else {
-
             $controllerArray[0] = $data;
-
             return $controllerArray;
-
         }
-
     }
 
+    /**
+     * Retern route pattern by it's name
+     * @param $name
+     * @return string
+     */
     private function getRoutePattern($name)
     {
-
         foreach ($this->routes as $method => $routeName) {
-
-            return $tempArray = trim($routeName[$name]['pattern'], '/');
-
+            if (array_key_exists($name, $routeName)){
+                return $tempArray = trim($routeName[$name]['pattern'], '/');
+            }
         }
 
+        return false;
     }
 
-    private function getRouteDefaultParams($name)
+    /**
+     * Save paremters to $params array if uri been matched
+     * @param $patternArray
+     * @param $queryArray
+     * @return array $this->params or false
+     * @internal param $patteren
+     */
+    private function saveQueryParameters($patternArray, $queryArray)
     {
-
-        foreach ($this->routes as $method => $routeName) {
-
-           return $tempArray = $routeName[$name]['defaultParams'];
-
+        $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
+        foreach ($patternArray as $k => $v) {
+            if (strpbrk($v, '(')) {
+                if (array_key_exists($k, $queryArray)) {
+                    return $this->params[$paramsNameArray[$k]] = $queryArray[$k];
+                }
+            }
         }
-
+        return false;
     }
 
-    protected function buildPath($data)
+    /**
+     * Build url from buildRoute result
+     * @param $data
+     * @param $absolute
+     * @return bool|string
+     */
+    protected function buildPath($data, $absolute = null)
     {
-
-        if (is_array($data)) {
-
-            $path = '/' . implode('/', $data);
-
-            return $path;
-
-        } elseif (is_string($data)) {
-
-            $path = $data;
-
-            return $path;
-
+        if ($absolute) {
+            if (is_array($data)) {
+                $path = $this->hostname . '/' . implode('/', $data);
+                return $path;
+            } elseif (is_string($data)) {
+                return $path = $this->hostname . $data;
+            }
+        } else {
+            if (is_array($data)) {
+                $path = '/' . implode('/', $data);
+                return $path;
+            } elseif (is_string($data)) {
+                return $path = $data;
+            }
         }
 
-    }
-
-    protected function buildAbsolutePath($data)
-
-    {
-        if (is_array($data)) {
-
-            $path = $this->base . '/' . implode('/', $data);
-
-            return $path;
-
-        } elseif (is_string($data)) {
-
-            $path = $this->base . $data;
-
-            return $path;
-
-        }
-
-        return $path = $this->base . $data;
-
+        return false;
     }
 }
-

@@ -8,7 +8,6 @@
 
 namespace SmartRouting;
 
-
 use SmartRouting\Routing\AbstractRouteCollection;
 use SmartRouting\Routing\Exception\RoutingException;
 
@@ -20,11 +19,14 @@ use SmartRouting\Routing\Exception\RoutingException;
 class Routes extends AbstractRouteCollection
 {
 
+    /**
+     * @var
+     */
     private static $instance;
-
     /**
      * @var array
      */
+
     protected static $routes = array(
         'GET' => array(),
         'POST' => array(),
@@ -36,12 +38,14 @@ class Routes extends AbstractRouteCollection
     /**
      * Routes constructor.singleton
      */
-    private  function __construct()
+    protected function __construct()
     {
+
     }
+
     public static function getInstance()
     {
-        if( empty(self::$instance)){
+        if (empty(self::$instance)) {
             self::$instance = new Routes();
         }
         return self::$instance;
@@ -57,42 +61,25 @@ class Routes extends AbstractRouteCollection
      */
     public static function add($name, $pattern, $controller, $method = 'GET')
     {
+        $meth = strtoupper($method);
+        var_dump($meth);
+        var_dump(self::$routes);
+        if (array_key_exists($meth, self::$routes)) {
+            foreach (self::$routes as $m => $routeName)
+                if (!($name === $routeName)) {
+                    self::$routes[$meth][$name] = array(
+                        'pattern' => $pattern,
+                        'controller' => $controller,
+                    );
+                    self::saveRoutes();
+                } else {
+                    throw new RoutingException("Route $name already exists");
+                }
 
-        $method = strtoupper($method);
-
-        if (array_key_exists($name, self::$routes[$method])){
-            throw new RoutingException("Route $name already exists");
+        } else {
+            throw new RoutingException("Unsupported method:  $method");
         }
 
-        self::$routes[$method][$name] = array(
-            'pattern' => $pattern,
-            'controller' => $controller,
-        );
-
-        self::saveRoutes();
-
-    }
-
-    /**
-     * Delete route
-     * @param $name
-     */
-    public static function deleteRoute($name)
-    {
-        foreach (self::$routes as $method => $route) {
-            if(array_key_exists($name, $route)){
-                unset (self::$routes[$method][$name]);
-            }
-        }
-    }
-
-    /**
-     * Read routes from file
-     */
-    public static function readRoutes()
-    {
-        $routesFile = dirname(__FILE__). '/Routes/routes.php';
-        self::$routes = include $routesFile;
     }
 
     /**
@@ -100,15 +87,40 @@ class Routes extends AbstractRouteCollection
      */
     public static function saveRoutes()
     {
-        $routesFile = dirname(__FILE__). '/Routes/routes.php';
-        file_put_contents ( $routesFile , '<?php return '.var_export( self::$routes, true ).";\n");
+        $routesFile = dirname(__FILE__) . '/Routes/routes.php';
+        file_put_contents($routesFile, '<?php return ' . var_export(self::$routes, true) . ";\n");
+    }
+
+    /**
+     * Delete route
+     * @param $name
+     * @return bool|void
+     */
+    public static function deleteRoute($name)
+    {
+        foreach (self::$routes as $method => $route) {
+            if (array_key_exists($name, $route)) {
+                unset (self::$routes[$method][$name]);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Read routes from file
+     */
+    public static function readRoutes($path)
+    {
+        self::$fileRoutes = dirname(dirname(__DIR__)) . $path;
+        self::$routes = include_once self::$fileRoutes;
     }
 
     /**
      * Get routes array
      * @return array
      */
-    public function getRoutes()
+
+    public static function getRoutes()
     {
         return self::$routes;
     }

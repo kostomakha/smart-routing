@@ -7,9 +7,9 @@
  */
 
 namespace SmartRouting;
+
 use SmartRouting\Routing\AbstractRouter;
-use SmartRouting\Route;
-use HttpExchange\Request\Request;
+
 
 class Router extends AbstractRouter
 {
@@ -25,12 +25,10 @@ class Router extends AbstractRouter
 
     public function __construct(Request $request)
     {
+        //Get data from HttpRequest
         $this->request = $request;
-
         $this->uri = $this->request->getUri()->getPath();
-
         $this->method = strtoupper($this->request->getMethod());
-
         $this->route = new Route();
     }
 
@@ -53,12 +51,16 @@ class Router extends AbstractRouter
 
 
     /**
-     * @param $name
+     * Buiild url by name and params
+     * @param $name - of the route which will be built
+     * @param array $params which will be sent to the route pattern
+     * @param $absolute - default value true if false url built without  hostname
      * @return $this
+     * @throws Routing\Exception\RoutingException
      */
-    public function buildRoute($name, array $params)
+    public function buildRoute($name, array $params, $absolute = true)
     {
-        $this->route->buildRoute($name, $params);
+        return $this->route->buildRoute($name, $params, $absolute);
     }
 
     /**
@@ -73,7 +75,7 @@ class Router extends AbstractRouter
                 foreach ($routeArray as $k => $v) {
                     $this->params[$k] = $v;
                 }
-            }else {
+            } else {
                 $this->params = [];
             }
         } else {
@@ -81,7 +83,12 @@ class Router extends AbstractRouter
         }
     }
 
-    private function formatResult($data) {
+    /**
+     * @param $data
+     * @return string
+     */
+    private function formatResult($data)
+    {
         return $formated = ucfirst($data);
     }
 }
