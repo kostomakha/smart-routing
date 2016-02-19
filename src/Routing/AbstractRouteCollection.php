@@ -11,6 +11,8 @@ namespace SmartRouting\Routing;
 
 abstract class AbstractRouteCollection
 {
+    protected static $fileRoutes;
+
     public static function add($name, $pattern, $controller, $method = 'GET')
     {
 
@@ -25,7 +27,7 @@ abstract class AbstractRouteCollection
 
     }
 
-    public static function readRoutes()
+    public static function readRoutes($path)
     {
 
     }
