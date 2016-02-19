@@ -26,12 +26,10 @@ class Router extends AbstractRouter
 
     public function __construct(Request $request)
     {
+        //Get data from HttpRequest
         $this->request = $request;
-
         $this->uri = $this->request->getUri()->getPath();
-
         $this->method = strtoupper($this->request->getMethod());
-
         $this->route = new Route();
     }
 

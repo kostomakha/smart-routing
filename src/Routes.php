@@ -26,6 +26,7 @@ class Routes extends AbstractRouteCollection
     /**
      * @var array
      */
+
     protected static $routes = array(
         'GET' => array(),
         'POST' => array(),
@@ -39,6 +40,7 @@ class Routes extends AbstractRouteCollection
      */
     protected function __construct()
     {
+
     }
 
     public static function getInstance()
@@ -64,7 +66,6 @@ class Routes extends AbstractRouteCollection
         var_dump(self::$routes);
         if (array_key_exists($meth, self::$routes)) {
             foreach (self::$routes as $m => $routeName)
-
                 if (!($name === $routeName)) {
                     self::$routes[$meth][$name] = array(
                         'pattern' => $pattern,

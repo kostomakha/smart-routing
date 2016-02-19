@@ -56,7 +56,7 @@ class Route extends AbstractRoute
     public function findRoute($path, $method)
     {
         $method = strtoupper($method);
-        var_dump($method);
+
         //select all routes which corresponded to $method
         $routes = $this->routes[$method];
 
@@ -66,22 +66,22 @@ class Route extends AbstractRoute
 
             //if patter equles path we done
             if (in_array($path, $route)) {
-
                 return $this->parseController(end($route));
-
             }
 
             $pattern = $route['pattern'];
-
             $patternArray = explode('/', trim($pattern, '/'));
+
             //check, have we some optionals parameters
             if (!strpbrk($pattern, '?') && strpbrk($pattern, '(')) {
 
-                // Replace all params for proper pregmatch that we stored in our $filters property
-                // Call a replaceFilter() method on $patternArray values
+
+                /**
+                 * Replace all params for proper pregmatch that we stored in our $filters property
+                 * Call a replaceFilter() method on $patternArray values
+                 */
 
                 $patternArrayFiltered = array_map(array($this, 'replaceForFilter'), $patternArray);
-
                 $patternMatcher = '/' . implode('/', $patternArrayFiltered);
 
                 //Do match
@@ -90,12 +90,9 @@ class Route extends AbstractRoute
                 //If matched lat's take params
                 if ($matched) {
 
-
                     //Call a setParamsNmaes() method on every array value
                     $this->saveQueryParameters($patternArray, $queryArray);
-
                     return $this->parseController(end($route));
-
                 }
 
             //If pattern have some optional parameters
@@ -103,41 +100,27 @@ class Route extends AbstractRoute
 
                 //build pattern match
                 foreach ($patternArray as $k => $v) {
-
                     if (strpbrk($v, '?')) {
-
                         $patternMatcherArray[$k] = '((\/)?([a-zA-Z]+)?)?';
-
                     } elseif (strpbrk($v, '(')) {
-
                         $patternMatcherArray[$k] = $this->replaceForFilter($v);
-
                     } elseif (!strpbrk($v, '(')) {
-
                         $patternMatcherArray[$k] = '\/' . $v . '\/';
-
                     }
-
                 }
 
                 //Do we have parameters
                 $patternMatcher = implode('', $patternMatcherArray);
-
                 preg_match('\'' . $patternMatcher . '\'', $path, $matched);
 
                 if ($matched) {
 
                     //save params for optional routes
                     $this->saveQueryParameters($patternArray, $queryArray);
-
                     return $this->parseController(end($route));
-
                 }
-
             }
-
         }
-
     }
 
     /**
@@ -148,21 +131,13 @@ class Route extends AbstractRoute
     private function replaceForFilter($a)
     {
         if (strpbrk($a, '?')) {
-
             $filterType = substr($a, strpos($a, ':') + 1, -2);
-
             return $a = str_replace($a, $this->filter[$filterType], $a);
-
         } elseif (strpbrk($a, ':') && !strpbrk($a, '?')) {
-
             $filterType = substr($a, strpos($a, ':') + 1, -1);
-
             return $a = str_replace($a, $this->filter[$filterType], $a);
-
         } elseif (strpbrk($a, '(')) {
-
             return $a = str_replace($a, $this->filter['any'], $a);
-
         }
 
         return $a;
@@ -180,11 +155,9 @@ class Route extends AbstractRoute
     public function buildRoute($name, array $params = array(), $absolute = null)
     {
         $this->name = $name;
-
         $pattern = $this->getRoutePattern($this->name);
         var_dump($pattern);
         if ($params) {
-
             $patternArray = explode('/', trim($pattern, '/'));
             $patternArrayFilter = array_map(array($this, 'replaceForFilter'), $patternArray);
             $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
@@ -245,19 +218,12 @@ class Route extends AbstractRoute
      */
     private function setParamsNames($a)
     {
-
         if (strpbrk($a, ':')) {
-
             return $a = substr($a, 1, strpos($a, ':') - 1);
-
         } elseif (strpbrk($a, '(')) {
-
             return $a = substr($a, 1, -1);
-
         }
-
         return $a;
-
     }
 
     /**
@@ -268,21 +234,13 @@ class Route extends AbstractRoute
     protected function parseController($data)
     {
         if (strpos($data, ':')) {
-
             $controllerArray = explode(':', $data);
-
             $controllerArray = $controllerArray + $this->params;
-
             return $controllerArray;
-
         } else {
-
             $controllerArray[0] = $data;
-
             return $controllerArray;
-
         }
-
     }
 
     /**
@@ -292,7 +250,6 @@ class Route extends AbstractRoute
      */
     private function getRoutePattern($name)
     {
-
         foreach ($this->routes as $method => $routeName) {
             if (array_key_exists($name, $routeName)){
                 return $tempArray = trim($routeName[$name]['pattern'], '/');
@@ -308,19 +265,12 @@ class Route extends AbstractRoute
     private function saveQueryParameters($patternArray, $queryArray)
     {
         $paramsNameArray = array_map(array($this, 'setParamsNames'), $patternArray);
-
         foreach ($patternArray as $k => $v) {
-
             if (strpbrk($v, '(')) {
-
                 if (array_key_exists($k, $queryArray)) {
-
                     return $this->params[$paramsNameArray[$k]] = $queryArray[$k];
-
                 }
-
             }
-
         }
     }
 
@@ -335,29 +285,18 @@ class Route extends AbstractRoute
         var_dump($absolute);
         if ($absolute) {
             if (is_array($data)) {
-
                 $path = $this->hostname . '/' . implode('/', $data);
-
                 return $path;
-
             } elseif (is_string($data)) {
-
                 return $path = $this->hostname . $data;
-
             }
         } else {
             if (is_array($data)) {
-
                 $path = '/' . implode('/', $data);
-
                 return $path;
-
             } elseif (is_string($data)) {
-
                 return $path = $data;
-
             }
-
         }
         return false;
     }

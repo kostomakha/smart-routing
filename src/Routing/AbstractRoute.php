@@ -13,6 +13,7 @@ abstract class AbstractRoute
     {
         $this->routesCollection = Routes::getInstance();
     }
+
     abstract public function findRoute($path, $method);
 
     abstract public function buildRoute($name, array $params = array(), $absolute = false);
